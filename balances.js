@@ -58,10 +58,5 @@ function settleDebts(creditors, debtors) {
   return payments;
 }
 
-const testExpenses = [
-  { paidBy: "Amina", amount: 4000, splitAmong: ["Amina", "Brian", "Chege", "Dan"] },
-  { paidBy: "Brian", amount: 2000, splitAmong: ["Amina", "Brian", "Chege", "Dan"] },
-];
+module.exports = { calculateBalances, splitBalances, settleDebts };
 
-const { creditors, debtors } = splitBalances(calculateBalances(testExpenses));
-console.log(settleDebts(creditors, debtors));
