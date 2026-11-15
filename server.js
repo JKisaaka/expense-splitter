@@ -32,6 +32,24 @@ app.get("/groups", (req, res) => {
   res.json(groups);
 });
 
+app.post("/groups/:id/members", (req, res) => {
+  const { name } = req.body;
+  const groupId = req.params.id;
+  const result = db
+    .prepare("INSERT INTO members (group_id, name) VALUES (?, ?)")
+    .run(groupId, name);
+
+  res.json({ id: result.lastInsertRowid, group_id: Number(groupId), name });
+});
+
+app.get("/groups/:id/members", (req, res) => {
+  const members = db
+    .prepare("SELECT * FROM members WHERE group_id = ?")
+    .all(req.params.id);
+
+  res.json(members);
+});
+
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");
 });
