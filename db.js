@@ -27,4 +27,11 @@ db.exec(`
   )
 `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS expense_shares (
+    expense_id INTEGER NOT NULL REFERENCES expenses(id),
+    member_id INTEGER NOT NULL REFERENCES members(id)
+  )
+`);
+
 module.exports = db;
