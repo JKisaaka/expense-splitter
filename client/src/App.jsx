@@ -14,6 +14,7 @@ function App() {
   const [amount, setAmount] = useState("");
   const [paidBy, setPaidBy] = useState("");
   const [sharedBy, setSharedBy] = useState([]);
+  const [error, setError] = useState("");
 
   function loadGroups() {
     fetch(`${API}/groups`)
@@ -57,6 +58,7 @@ function App() {
     setMembers([]);
     setPaidBy("");
     setSharedBy([]);
+    setError("");
     loadMembers(group.id);
     loadSettlement(group.id);
   }
@@ -86,7 +88,12 @@ function App() {
   function handleAddExpense(event) {
     event.preventDefault();
     const value = Math.round(Number(amount));
-    if (!paidBy || !(value > 0) || sharedBy.length === 0) return;
+
+    if (!paidBy) return setError("Choose who paid.");
+    if (!(value > 0)) return setError("Enter an amount above zero.");
+    if (sharedBy.length === 0)
+      return setError("Tick at least one person who shares it.");
+    setError("");
 
     fetch(`${API}/groups/${selected.id}/expenses`, {
       method: "POST",
@@ -182,6 +189,7 @@ function App() {
                 {m.name}{" "}
               </label>
             ))}
+            {error && <p style={{ color: "crimson" }}>{error}</p>}
             <p>
               <button type="submit">Add expense</button>
             </p>
