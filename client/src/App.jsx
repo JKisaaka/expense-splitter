@@ -10,6 +10,11 @@ function App() {
   const [members, setMembers] = useState([]);
   const [memberName, setMemberName] = useState("");
 
+  const [description, setDescription] = useState("");
+  const [amount, setAmount] = useState("");
+  const [paidBy, setPaidBy] = useState("");
+  const [sharedBy, setSharedBy] = useState([]);
+
   function loadGroups() {
     fetch(`${API}/groups`)
       .then((response) => response.json())
@@ -20,6 +25,12 @@ function App() {
     fetch(`${API}/groups/${groupId}/members`)
       .then((response) => response.json())
       .then((data) => setMembers(data));
+  }
+
+  function loadSettlement(groupId) {
+    fetch(`${API}/groups/${groupId}/settle`)
+      .then((response) => response.json())
+      .then((data) => setResult(data));
   }
 
   useEffect(() => {
@@ -44,10 +55,10 @@ function App() {
     setSelected(group);
     setResult(null);
     setMembers([]);
+    setPaidBy("");
+    setSharedBy([]);
     loadMembers(group.id);
-    fetch(`${API}/groups/${group.id}/settle`)
-      .then((response) => response.json())
-      .then((data) => setResult(data));
+    loadSettlement(group.id);
   }
 
   function handleAddMember(event) {
@@ -61,6 +72,36 @@ function App() {
     }).then(() => {
       setMemberName("");
       loadMembers(selected.id);
+    });
+  }
+
+  function toggleShare(memberId) {
+    if (sharedBy.includes(memberId)) {
+      setSharedBy(sharedBy.filter((id) => id !== memberId));
+    } else {
+      setSharedBy([...sharedBy, memberId]);
+    }
+  }
+
+  function handleAddExpense(event) {
+    event.preventDefault();
+    const value = Math.round(Number(amount));
+    if (!paidBy || !(value > 0) || sharedBy.length === 0) return;
+
+    fetch(`${API}/groups/${selected.id}/expenses`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        paidBy: Number(paidBy),
+        amount: value,
+        description,
+        splitAmong: sharedBy,
+      }),
+    }).then(() => {
+      setDescription("");
+      setAmount("");
+      setSharedBy([]);
+      loadSettlement(selected.id);
     });
   }
 
@@ -104,6 +145,46 @@ function App() {
               placeholder="New member name"
             />
             <button type="submit">Add member</button>
+          </form>
+
+          <h3>Add an expense</h3>
+          <form onSubmit={handleAddExpense}>
+            <input
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder="What was it for?"
+            />
+            <input
+              type="number"
+              value={amount}
+              onChange={(event) => setAmount(event.target.value)}
+              placeholder="Amount"
+            />
+            <select
+              value={paidBy}
+              onChange={(event) => setPaidBy(event.target.value)}
+            >
+              <option value="">Who paid?</option>
+              {members.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+            <p>Shared by:</p>
+            {members.map((m) => (
+              <label key={m.id}>
+                <input
+                  type="checkbox"
+                  checked={sharedBy.includes(m.id)}
+                  onChange={() => toggleShare(m.id)}
+                />
+                {m.name}{" "}
+              </label>
+            ))}
+            <p>
+              <button type="submit">Add expense</button>
+            </p>
           </form>
 
           <h3>Who owes whom</h3>
