@@ -7,11 +7,19 @@ function App() {
   const [name, setName] = useState("");
   const [selected, setSelected] = useState(null);
   const [result, setResult] = useState(null);
+  const [members, setMembers] = useState([]);
+  const [memberName, setMemberName] = useState("");
 
   function loadGroups() {
     fetch(`${API}/groups`)
       .then((response) => response.json())
       .then((data) => setGroups(data));
+  }
+
+  function loadMembers(groupId) {
+    fetch(`${API}/groups/${groupId}/members`)
+      .then((response) => response.json())
+      .then((data) => setMembers(data));
   }
 
   useEffect(() => {
@@ -35,9 +43,25 @@ function App() {
   function openGroup(group) {
     setSelected(group);
     setResult(null);
+    setMembers([]);
+    loadMembers(group.id);
     fetch(`${API}/groups/${group.id}/settle`)
       .then((response) => response.json())
       .then((data) => setResult(data));
+  }
+
+  function handleAddMember(event) {
+    event.preventDefault();
+    if (!memberName.trim()) return;
+
+    fetch(`${API}/groups/${selected.id}/members`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: memberName }),
+    }).then(() => {
+      setMemberName("");
+      loadMembers(selected.id);
+    });
   }
 
   return (
@@ -65,6 +89,24 @@ function App() {
       {selected && (
         <div>
           <h2>{selected.name}</h2>
+
+          <h3>Members</h3>
+          {members.length === 0 && <p>No members yet.</p>}
+          <ul>
+            {members.map((m) => (
+              <li key={m.id}>{m.name}</li>
+            ))}
+          </ul>
+          <form onSubmit={handleAddMember}>
+            <input
+              value={memberName}
+              onChange={(event) => setMemberName(event.target.value)}
+              placeholder="New member name"
+            />
+            <button type="submit">Add member</button>
+          </form>
+
+          <h3>Who owes whom</h3>
           {!result && <p>Loading...</p>}
           {result && result.payments.length === 0 && <p>All settled up.</p>}
           {result &&
