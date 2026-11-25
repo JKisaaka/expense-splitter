@@ -20,13 +20,28 @@ You need Node.js installed.
 
     git clone https://github.com/JKisaaka/expense-splitter.git
     cd expense-splitter
-    node balances.js
+    npm install
+    node server.js
 
-This prints the payments needed to settle the example expenses in the file.
+In a second terminal, start the web page:
+
+    cd client
+    npm install
+    npm run dev
+
+Then open http://localhost:5173.
+
+## What works
+
+- Create groups and add members
+- Add expenses and choose who paid and who shares each one
+- See who owes whom for any group, using the settlement algorithm
+
+## Built with
+
+Node.js, Express, SQLite (better-sqlite3), React (Vite)
 
 ## Planned
 
-- Express backend and database for groups, members and expenses
-- React interface to add expenses and see who owes whom
+- List of past expenses per group
 - Spending charts
-
