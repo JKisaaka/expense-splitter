@@ -133,6 +133,23 @@ app.get("/groups/:id/expenses", (req, res) => {
   res.json(expenses);
 });
 
+app.delete("/groups/:id", (req, res) => {
+  const groupId = req.params.id;
+
+  const remove = db.transaction(() => {
+    db.prepare(
+      `DELETE FROM expense_shares
+       WHERE expense_id IN (SELECT id FROM expenses WHERE group_id = ?)`
+    ).run(groupId);
+    db.prepare("DELETE FROM expenses WHERE group_id = ?").run(groupId);
+    db.prepare("DELETE FROM members WHERE group_id = ?").run(groupId);
+    db.prepare("DELETE FROM expense_groups WHERE id = ?").run(groupId);
+  });
+
+  remove();
+  res.json({ deleted: Number(groupId) });
+});
+
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");
 });
