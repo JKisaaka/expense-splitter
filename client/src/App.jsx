@@ -9,6 +9,7 @@ function App() {
   const [result, setResult] = useState(null);
   const [members, setMembers] = useState([]);
   const [memberName, setMemberName] = useState("");
+  const [expenses, setExpenses] = useState([]);
 
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
@@ -34,6 +35,12 @@ function App() {
       .then((data) => setResult(data));
   }
 
+  function loadExpenses(groupId) {
+    fetch(`${API}/groups/${groupId}/expenses`)
+      .then((response) => response.json())
+      .then((data) => setExpenses(data));
+  }
+
   useEffect(() => {
     loadGroups();
   }, []);
@@ -56,11 +63,13 @@ function App() {
     setSelected(group);
     setResult(null);
     setMembers([]);
+    setExpenses([]);
     setPaidBy("");
     setSharedBy([]);
     setError("");
     loadMembers(group.id);
     loadSettlement(group.id);
+    loadExpenses(group.id);
   }
 
   function handleAddMember(event) {
@@ -109,6 +118,7 @@ function App() {
       setAmount("");
       setSharedBy([]);
       loadSettlement(selected.id);
+      loadExpenses(selected.id);
     });
   }
 
@@ -194,6 +204,17 @@ function App() {
               <button type="submit">Add expense</button>
             </p>
           </form>
+
+          <h3>Expenses</h3>
+          {expenses.length === 0 && <p>No expenses yet.</p>}
+          <ul>
+            {expenses.map((e) => (
+              <li key={e.id}>
+                {e.description || "Expense"}: {e.paid_by} paid {e.amount},
+                shared by {e.sharedBy.join(", ")}
+              </li>
+            ))}
+          </ul>
 
           <h3>Who owes whom</h3>
           {!result && <p>Loading...</p>}
