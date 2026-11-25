@@ -2,6 +2,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Legend,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -9,14 +10,24 @@ import {
 } from "recharts";
 
 function SpendingChart({ expenses }) {
-  const totals = {};
+  const paid = {};
+  const share = {};
+
   for (const e of expenses) {
-    totals[e.paid_by] = (totals[e.paid_by] || 0) + e.amount;
+    paid[e.paid_by] = (paid[e.paid_by] || 0) + e.amount;
+
+    const each = e.amount / e.sharedBy.length;
+    for (const person of e.sharedBy) {
+      share[person] = (share[person] || 0) + each;
+    }
   }
 
-  const data = Object.keys(totals).map((name) => ({
+  const names = Array.from(new Set([...Object.keys(paid), ...Object.keys(share)]));
+
+  const data = names.map((name) => ({
     name,
-    paid: totals[name],
+    Paid: Math.round(paid[name] || 0),
+    "Fair share": Math.round(share[name] || 0),
   }));
 
   if (data.length === 0) {
@@ -24,16 +35,24 @@ function SpendingChart({ expenses }) {
   }
 
   return (
-    <div style={{ width: "100%", height: 260 }}>
-      <ResponsiveContainer>
-        <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="paid" fill="#4f46e5" radius={[6, 6, 0, 0]} />
-        </BarChart>
-      </ResponsiveContainer>
+    <div>
+      <div style={{ width: "100%", height: 260 }}>
+        <ResponsiveContainer>
+          <BarChart data={data}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="Paid" fill="#4f46e5" radius={[6, 6, 0, 0]} />
+            <Bar dataKey="Fair share" fill="#f59e0b" radius={[6, 6, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+      <p className="muted">
+        Where Paid is taller than Fair share, the group owes that person. Where
+        it is shorter, they owe the group.
+      </p>
     </div>
   );
 }

@@ -245,6 +245,27 @@ function App() {
               </div>
             </div>
 
+                          <div className="card">
+                <h2>Balances</h2>
+                {!result && <p className="muted">Loading...</p>}
+                {result &&
+                  members.map((m) => {
+                    const balance = Math.round(result.balances[m.name] || 0);
+                    const status =
+                      balance > 0 ? "owed" : balance < 0 ? "owes" : "even";
+                    return (
+                      <div className="balance" key={m.id}>
+                        <strong>{m.name}</strong>
+                        <span className={`badge ${status}`}>
+                          {status === "owed" && `Is owed ${balance}`}
+                          {status === "owes" && `Owes ${-balance}`}
+                          {status === "even" && "All square"}
+                        </span>
+                      </div>
+                    );
+                  })}
+              </div>
+
             <div>
               <div className="card">
                 <h2>Who owes whom</h2>
