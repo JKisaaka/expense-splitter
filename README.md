@@ -33,15 +33,18 @@ Then open http://localhost:5173.
 
 ## What works
 
-- Create groups and add members
+- Create and delete groups, and add members
 - Add expenses and choose who paid and who shares each one
-- See who owes whom for any group, using the settlement algorithm
+- See each person's balance, and who owes whom, using the settlement algorithm
+- Chart of what each person paid against their fair share
+- List of past expenses for every group
 
 ## Built with
 
-Node.js, Express, SQLite (better-sqlite3), React (Vite)
+Node.js, Express, SQLite (better-sqlite3), React (Vite), Recharts
 
 ## Planned
 
-- List of past expenses per group
-- Spending charts
+- Mark a payment as settled
+- Delete expenses and members
+- Deploy online
