@@ -105,6 +105,34 @@ app.get("/groups/:id/settle", (req, res) => {
   res.json({ balances, payments });
 });
 
+app.get("/groups/:id/expenses", (req, res) => {
+  const groupId = req.params.id;
+
+  const rows = db
+    .prepare(
+      `SELECT e.id, e.description, e.amount, m.name AS paid_by
+       FROM expenses e
+       JOIN members m ON m.id = e.paid_by
+       WHERE e.group_id = ?
+       ORDER BY e.id DESC`
+    )
+    .all(groupId);
+
+  const getShares = db.prepare(
+    `SELECT m.name
+     FROM expense_shares s
+     JOIN members m ON m.id = s.member_id
+     WHERE s.expense_id = ?`
+  );
+
+  const expenses = rows.map((row) => ({
+    ...row,
+    sharedBy: getShares.all(row.id).map((s) => s.name),
+  }));
+
+  res.json(expenses);
+});
+
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");
 });
