@@ -72,6 +72,21 @@ function App() {
     loadExpenses(group.id);
   }
 
+  function handleDeleteGroup() {
+    const sure = window.confirm(
+      `Delete "${selected.name}" and all its members and expenses? This cannot be undone.`
+    );
+    if (!sure) return;
+
+    fetch(`${API}/groups/${selected.id}`, { method: "DELETE" }).then(() => {
+      setSelected(null);
+      setResult(null);
+      setMembers([]);
+      setExpenses([]);
+      loadGroups();
+    });
+  }
+
   function handleAddMember(event) {
     event.preventDefault();
     if (!memberName.trim()) return;
@@ -156,7 +171,12 @@ function App() {
 
       {selected && (
         <div>
-          <h2 className="group-title">{selected.name}</h2>
+          <div className="title-row">
+            <h2 className="group-title">{selected.name}</h2>
+            <button className="danger" onClick={handleDeleteGroup}>
+              Delete group
+            </button>
+          </div>
 
           <div className="layout">
             <div>

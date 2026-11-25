@@ -193,3 +193,25 @@ button:hover {
   display: block;
   color: var(--muted);
 }
+
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 8px 0 16px;
+}
+
+.title-row .group-title {
+  margin: 0;
+}
+
+.danger {
+  background: #dc2626;
+  padding: 7px 14px;
+  font-size: 0.9rem;
+}
+
+.danger:hover {
+  background: #b91c1c;
+}
