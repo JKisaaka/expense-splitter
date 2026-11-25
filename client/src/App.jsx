@@ -124,107 +124,143 @@ function App() {
 
   return (
     <div>
-      <h1>Expense Splitter</h1>
+      <div className="header">
+        <h1>Expense Splitter</h1>
+        <p className="subtitle">Split shared costs and see who owes whom.</p>
+      </div>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          placeholder="New group name"
-        />
-        <button type="submit">Add group</button>
-      </form>
-
-      <h2>Your groups</h2>
-      <ul>
-        {groups.map((group) => (
-          <li key={group.id}>
-            <button onClick={() => openGroup(group)}>{group.name}</button>
-          </li>
-        ))}
-      </ul>
+      <div className="card">
+        <h2>Your groups</h2>
+        <div className="chips">
+          {groups.map((group) => (
+            <button
+              key={group.id}
+              className={
+                selected && selected.id === group.id ? "chip active" : "chip"
+              }
+              onClick={() => openGroup(group)}
+            >
+              {group.name}
+            </button>
+          ))}
+        </div>
+        <form className="row" onSubmit={handleSubmit}>
+          <input
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="New group name"
+          />
+          <button type="submit">Add group</button>
+        </form>
+      </div>
 
       {selected && (
         <div>
-          <h2>{selected.name}</h2>
+          <h2 className="group-title">{selected.name}</h2>
 
-          <h3>Members</h3>
-          {members.length === 0 && <p>No members yet.</p>}
-          <ul>
-            {members.map((m) => (
-              <li key={m.id}>{m.name}</li>
-            ))}
-          </ul>
-          <form onSubmit={handleAddMember}>
-            <input
-              value={memberName}
-              onChange={(event) => setMemberName(event.target.value)}
-              placeholder="New member name"
-            />
-            <button type="submit">Add member</button>
-          </form>
+          <div className="layout">
+            <div>
+              <div className="card">
+                <h2>Members</h2>
+                {members.length === 0 && <p className="muted">No members yet.</p>}
+                <div className="pills">
+                  {members.map((m) => (
+                    <span className="pill" key={m.id}>
+                      {m.name}
+                    </span>
+                  ))}
+                </div>
+                <form className="row" onSubmit={handleAddMember}>
+                  <input
+                    value={memberName}
+                    onChange={(event) => setMemberName(event.target.value)}
+                    placeholder="New member name"
+                  />
+                  <button type="submit">Add member</button>
+                </form>
+              </div>
 
-          <h3>Add an expense</h3>
-          <form onSubmit={handleAddExpense}>
-            <input
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              placeholder="What was it for?"
-            />
-            <input
-              type="number"
-              value={amount}
-              onChange={(event) => setAmount(event.target.value)}
-              placeholder="Amount"
-            />
-            <select
-              value={paidBy}
-              onChange={(event) => setPaidBy(event.target.value)}
-            >
-              <option value="">Who paid?</option>
-              {members.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                </option>
-              ))}
-            </select>
-            <p>Shared by:</p>
-            {members.map((m) => (
-              <label key={m.id}>
-                <input
-                  type="checkbox"
-                  checked={sharedBy.includes(m.id)}
-                  onChange={() => toggleShare(m.id)}
-                />
-                {m.name}{" "}
-              </label>
-            ))}
-            {error && <p style={{ color: "crimson" }}>{error}</p>}
-            <p>
-              <button type="submit">Add expense</button>
-            </p>
-          </form>
+              <div className="card">
+                <h2>Add an expense</h2>
+                <form className="stack" onSubmit={handleAddExpense}>
+                  <input
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
+                    placeholder="What was it for?"
+                  />
+                  <input
+                    type="number"
+                    value={amount}
+                    onChange={(event) => setAmount(event.target.value)}
+                    placeholder="Amount"
+                  />
+                  <select
+                    value={paidBy}
+                    onChange={(event) => setPaidBy(event.target.value)}
+                  >
+                    <option value="">Who paid?</option>
+                    {members.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.name}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="label">Shared by</p>
+                  <div className="checks">
+                    {members.map((m) => (
+                      <label key={m.id}>
+                        <input
+                          type="checkbox"
+                          checked={sharedBy.includes(m.id)}
+                          onChange={() => toggleShare(m.id)}
+                        />
+                        {m.name}
+                      </label>
+                    ))}
+                  </div>
+                  {error && <p className="error">{error}</p>}
+                  <button type="submit">Add expense</button>
+                </form>
+              </div>
+            </div>
 
-          <h3>Expenses</h3>
-          {expenses.length === 0 && <p>No expenses yet.</p>}
-          <ul>
-            {expenses.map((e) => (
-              <li key={e.id}>
-                {e.description || "Expense"}: {e.paid_by} paid {e.amount},
-                shared by {e.sharedBy.join(", ")}
-              </li>
-            ))}
-          </ul>
+            <div>
+              <div className="card">
+                <h2>Who owes whom</h2>
+                {!result && <p className="muted">Loading...</p>}
+                {result && result.payments.length === 0 && (
+                  <p className="muted">All settled up.</p>
+                )}
+                {result &&
+                  result.payments.map((p, index) => (
+                    <div className="payment" key={index}>
+                      <strong>{p.from}</strong> pays <strong>{p.to}</strong>
+                      <span className="amount">{p.amount}</span>
+                    </div>
+                  ))}
+              </div>
 
-          <h3>Who owes whom</h3>
-          {!result && <p>Loading...</p>}
-          {result && result.payments.length === 0 && <p>All settled up.</p>}
-          {result &&
-            result.payments.map((p, index) => (
-              <p key={index}>
-                {p.from} pays {p.to} {p.amount}
-              </p>
-            ))}
+              <div className="card">
+                <h2>Expenses</h2>
+                {expenses.length === 0 && (
+                  <p className="muted">No expenses yet.</p>
+                )}
+                <ul className="expense-list">
+                  {expenses.map((e) => (
+                    <li className="expense" key={e.id}>
+                      <div>
+                        <strong>{e.description || "Expense"}</strong>
+                        <small>
+                          {e.paid_by} paid · shared by {e.sharedBy.join(", ")}
+                        </small>
+                      </div>
+                      <span className="amount">{e.amount}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
