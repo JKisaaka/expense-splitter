@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import SpendingChart from "./SpendingChart";
 
 const API = "http://localhost:3000";
 
@@ -258,6 +259,11 @@ function App() {
                       <span className="amount">{p.amount}</span>
                     </div>
                   ))}
+              </div>
+
+                            <div className="card">
+                <h2>Spending</h2>
+                <SpendingChart expenses={expenses} />
               </div>
 
               <div className="card">
