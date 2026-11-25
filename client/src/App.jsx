@@ -99,6 +99,7 @@ function App() {
     }).then(() => {
       setMemberName("");
       loadMembers(selected.id);
+      loadSettlement(selected.id);
     });
   }
 
@@ -202,6 +203,33 @@ function App() {
               </div>
 
               <div className="card">
+                <h2>Spending</h2>
+                <SpendingChart expenses={expenses} />
+              </div>
+
+              <div className="card">
+                <h2>Expenses</h2>
+                {expenses.length === 0 && (
+                  <p className="muted">No expenses yet.</p>
+                )}
+                <ul className="expense-list">
+                  {expenses.map((e) => (
+                    <li className="expense" key={e.id}>
+                      <div>
+                        <strong>{e.description || "Expense"}</strong>
+                        <small>
+                          {e.paid_by} paid · shared by {e.sharedBy.join(", ")}
+                        </small>
+                      </div>
+                      <span className="amount">{e.amount}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <div>
+              <div className="card">
                 <h2>Add an expense</h2>
                 <form className="stack" onSubmit={handleAddExpense}>
                   <input
@@ -243,9 +271,8 @@ function App() {
                   <button type="submit">Add expense</button>
                 </form>
               </div>
-            </div>
 
-                          <div className="card">
+              <div className="card">
                 <h2>Balances</h2>
                 {!result && <p className="muted">Loading...</p>}
                 {result &&
@@ -266,7 +293,6 @@ function App() {
                   })}
               </div>
 
-            <div>
               <div className="card">
                 <h2>Who owes whom</h2>
                 {!result && <p className="muted">Loading...</p>}
@@ -280,31 +306,6 @@ function App() {
                       <span className="amount">{p.amount}</span>
                     </div>
                   ))}
-              </div>
-
-                            <div className="card">
-                <h2>Spending</h2>
-                <SpendingChart expenses={expenses} />
-              </div>
-
-              <div className="card">
-                <h2>Expenses</h2>
-                {expenses.length === 0 && (
-                  <p className="muted">No expenses yet.</p>
-                )}
-                <ul className="expense-list">
-                  {expenses.map((e) => (
-                    <li className="expense" key={e.id}>
-                      <div>
-                        <strong>{e.description || "Expense"}</strong>
-                        <small>
-                          {e.paid_by} paid · shared by {e.sharedBy.join(", ")}
-                        </small>
-                      </div>
-                      <span className="amount">{e.amount}</span>
-                    </li>
-                  ))}
-                </ul>
               </div>
             </div>
           </div>
